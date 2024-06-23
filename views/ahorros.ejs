@@ -64,48 +64,53 @@
                                 </p>
                                 <a href="http://localhost:3000/ahorros-eliminar/<%=row.numero_cuenta%>"
                                     class="btn btn-danger"><i class="fa-solid fa-trash text-litgh"> Eliminar</i></a>
-                                <button data-bs-toggle="modal" data-bs-target="#editar" class="btn btn-primary"><i
-                                        class="fa-solid fa-pen-to-square text-litgh">
+                                <button data-bs-toggle="modal" data-bs-target="#editar<%=index%>"
+                                    class="btn btn-primary"><i class="fa-solid fa-pen-to-square text-litgh">
                                         Editar</i></button>
-                            </div>
-                        </div>
 
-                        <!-- Modal Editar -->
-                        <div class="modal fade text-dark" id="editar" tabindex="-1" aria-labelledby="editar"
-                            aria-hidden="true">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">Editar cuenta de ahorros</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form action="http://localhost:3000/ahorros-editar/<%=row.numero_cuenta%>"
-                                            method="post">
-                                            <div class="row mb-3">
-                                                <label for="balance" class="form-label">Deposito inicial</label>
-                                                <div class="col">
-                                                    <input type="number" min="0" class="form-control" id="balance" name="balance">
-                                                </div>
+                                <!-- Modal Editar -->
+                                <div class="modal fade text-dark" id="editar<%=index%>" tabindex="-1"
+                                    aria-labelledby="editar" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">Editar cuenta de ahorros
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
                                             </div>
-                                            <div class="row mb-3">
-                                                <label for="intereses" class="form-label">Intereses en %</label>
-                                                <div class="col">
-                                                    <input type="number" min="0" max="100" class="form-control" id="intereses"
-                                                        name="intereses">
-                                                </div>
+                                            <div class="modal-body">
+                                                <form
+                                                    action="http://localhost:3000/ahorros-editar/<%=row.numero_cuenta%>"
+                                                    method="post">
+                                                    <div class="row mb-3">
+                                                        <label for="balance" class="form-label">Deposito inicial</label>
+                                                        <div class="col">
+                                                            <input type="number" min="0" class="form-control"
+                                                                id="balance" name="balance">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <label for="intereses" class="form-label">Intereses en %</label>
+                                                        <div class="col">
+                                                            <input type="number" min="0" max="100" class="form-control"
+                                                                id="intereses" name="intereses">
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex justify-content-end gap-2">
+                                                        <button type="submit" class="btn btn-warning">Editar</button>
+                                                        <button type="button" data-bs-dismiss="modal"
+                                                            class="btn btn-danger">Cancelar</button>
+                                                    </div>
+                                                </form>
                                             </div>
-                                            <div class="d-flex justify-content-end gap-2">
-                                                <button type="submit" class="btn btn-warning">Editar</button>
-                                                <button type="button" data-bs-dismiss="modal"
-                                                    class="btn btn-danger">Cancelar</button>
-                                            </div>
-                                        </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+
                     </section>
                     <% })} %>
         </section>
