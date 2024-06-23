@@ -21,7 +21,7 @@ class prestamosControllers {
                         fecha_pago: prestamo.fecha_pago,
                         monto_pago: prestamo.monto_pago + "Bs",
                         dueño: prestamo.dueño,
-                        numero_cuenta: prestamo.numero_cuenta
+                        numero_cuenta: prestamo._id
                     })
                 });
                 return resolve({
