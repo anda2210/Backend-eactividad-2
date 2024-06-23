@@ -1,10 +1,13 @@
-const { ahorros, usuarios } = require("../database/database");
-const { v4: uuidv4 } = require('uuid');
+const AhorrosModel = require('../models/ahorros.m');
+const UsuaiosModel = require('../models/usuarios.m');
 
 class ahorrosControllers {
     listar() {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
+                const ahorros = await AhorrosModel.find().select(
+                    '_id balance intereses dueño'
+                )
                 if (ahorros.length === 0) {
                     return reject('No hay cuentas de ahorros registradas en el Banco')
                 }
@@ -14,7 +17,7 @@ class ahorrosControllers {
                         balance: ahorro.balance + "Bs",
                         intereses: ahorro.intereses + "%",
                         dueño: ahorro.dueño,
-                        numero_cuenta: ahorro.numero_cuenta
+                        numero_cuenta: ahorro._id
                     })
                 });
                 return resolve({
@@ -28,9 +31,15 @@ class ahorrosControllers {
     };
 
     agregar(ahorro) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
-                if (!ahorro.dueño) {
+                const ahorros = await AhorrosModel.find().select(
+                    '_id balance intereses dueño'
+                )
+                const usuarios = await UsuaiosModel.find().select(
+                    '_id nombre apellido usuario correo cedula'
+                )
+                if (!ahorro.dueño || !ahorro.balance || !ahorro.intereses) {
                     return reject("Faltan propiedades escenciales para agregar la cuenta")
                 }
                 for (let a = 0; a < ahorros.length; a++) {
@@ -40,20 +49,22 @@ class ahorrosControllers {
                 }
                 for (let i = 0; i < usuarios.length; i++) {
                     if (usuarios[i].usuario === ahorro.dueño) {
-                        let cuenta_nueva = {
-                            balance: 0,
-                            intereses: 5,
+                        let nuevo = {
+                            balance: Number(ahorro.balance),
+                            intereses: Number(ahorro.intereses),
                             dueño: ahorro.dueño,
-                            numero_cuenta: uuidv4()
                         }
-                        ahorros.push(cuenta_nueva);
+                        const cuenta_nueva = await AhorrosModel.create(nuevo)
+                        if (!cuenta_nueva) {
+                            return reject('Hubo un error al crear la nueva cuenta de ahorro')
+                        }
                         return resolve({
                             mensaje: "Se ha agregado con éxito la cuenta de ahorro al usuario " + ahorro.dueño,
                             data: {
                                 balance: cuenta_nueva.balance + "Bs",
                                 intereses: cuenta_nueva.intereses + "%",
                                 dueño: cuenta_nueva.dueño,
-                                numero_cuenta: cuenta_nueva.numero_cuenta
+                                numero_cuenta: cuenta_nueva._id
                             }
                         })
                     }
@@ -66,22 +77,29 @@ class ahorrosControllers {
     }
 
     editar(ahorro, cuenta) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
+                const ahorros = await AhorrosModel.find().select(
+                    '_id balance intereses dueño'
+                )
                 if (!ahorro.intereses || !ahorro.balance) {
                     return reject("Faltan propiedades escenciales para agregar la cuenta")
                 }
                 for (let i = 0; i < ahorros.length; i++) {
-                    if (ahorros[i].numero_cuenta === cuenta) {
+                    if (ahorros[i]._id == cuenta) {
                         ahorros[i].intereses = ahorro.intereses
                         ahorros[i].balance = ahorro.balance
+                        const cuentaEditada = await AhorrosModel.updateOne({ _id: cuenta }, { $set: ahorros[i] })
+                        if (!cuentaEditada) {
+                            return reject('Hubo un error al editar la cuenta')
+                        }
                         return resolve({
                             mensaje: "Editado con exito la cuenta de ahorros",
                             data: {
                                 balance: ahorros[i].balance + "Bs",
                                 intereses: ahorros[i].intereses + "%",
                                 dueño: ahorros[i].dueño,
-                                numero_cuenta: ahorros[i].numero_cuenta
+                                numero_cuenta: ahorros[i]._id
                             }
                         })
                     }
@@ -94,11 +112,17 @@ class ahorrosControllers {
     }
 
     eliminar(cuenta) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
+                const ahorros = await AhorrosModel.find().select(
+                    '_id balance intereses dueño'
+                )
                 for (let i = 0; i < ahorros.length; i++) {
-                    if (ahorros[i].numero_cuenta === cuenta) {
-                        ahorros.splice(i, 1);
+                    if (ahorros[i]._id == cuenta) {
+                        const cuentaEliminada = await AhorrosModel.findByIdAndDelete(cuenta)
+                        if (!cuentaEliminada) {
+                            return reject('Hubo un error al eliminar la cuenta')
+                        }
                         return resolve({
                             mensaje: "Se ha eliminado con exito la cuenta de ahorro " + cuenta
                         })
