@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BANCO MERCANTIL</title>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta2/css/bootstrap.min.css"
+        integrity="sha512-aqT9YD5gLuLBr6ipQAS+72o5yHKzgZbGxEh6iY8lW/r6gG14e2kBTAJb8XrxzZrMOgSmDqtLaF76T0Z6YY2IHg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-dark bg-info">
+            <div class="container">
+                <a href="http://localhost:3000/" class="navbar-brand text-dark"><img style="height: 75px; width: 200px;"
+                        src="https://upload.wikimedia.org/wikipedia/commons/4/47/Banco_Mercantil_Logo.png" alt=""></a>
+                <form class="d-flex">
+                    <input class="form-control me-2" type="search" placeholder="buscar" aria-label="buscar">
+                    <button class="btn btn-primary" type="submit">Buscar</button>
+                </form>
+            </div>
+        </nav>
+    </header>
+    <main style="padding: 25px;">
+        <h2 class="container mb-3">Cuentas de Prestamos</h2>
+        <!-- Button trigger modal -->
+        <div class="container mb-5">
+            <button type="button" class="btn" style="background-color: #004E9A; color: white;" data-bs-toggle="modal"
+                data-bs-target="#formulario">
+                Agregar cuenta
+            </button>
+        </div>
+        <h3 class="container mb-3" style="font-size: 26px;">Puedes ver todas las cuentas de prestamos: </h3>
+        <div class="container mb-3" style="border: solid 1px #004E9A; width: 100%;"></div>
+
+        <section class="container" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 25px;">
+            <% if (cuentas===null) {%>
+                <h3 class="container mb-3" style="font-size: 26px;">
+                    <%= mensaje %>
+                </h3>
+                <% } else { cuentas.forEach((row, index)=> {
+                    %>
+                    <section class="container mb-4 text-white" style="width: auto;">
+                        <div class="card">
+                            <div class="card-header fs-4 bg-info text-dark">
+                                <%= row.dueño %>
+                            </div>
+                            <div class="card-body bg-ligth text-dark">
+                                <p class="card-text"><b>Balance:</b>
+                                    <%= row.balance %>
+                                </p>
+                                <p class="card-text"><b>Intereses:</b>
+                                    <%= row.intereses %>
+                                </p>
+                                <p class="card-text"><b>Estado de la cuenta:</b>
+                                    <%= row.estado %>
+                                </p>
+                                <p class="card-text"><b>Fecha de pago:</b>
+                                    <%= row.fecha_pago %>
+                                </p>
+                                <p class="card-text"><b>Monto a pagar:</b>
+                                    <%= row.monto_pago %>
+                                </p>
+                                <p class="card-text"><b>Numero de cuenta:</b>
+                                    <%= row.numero_cuenta %>
+                                </p>
+                                <a href="http://localhost:3000/prestamos-eliminar/<%=row.numero_cuenta%>"
+                                    class="btn btn-danger"><i class="fa-solid fa-trash text-litgh"> Eliminar</i></a>
+                            </div>
+                        </div>
+                    </section>
+                    <% })} %>
+        </section>
+
+        <!-- Modal -->
+        <div class="modal fade" id="formulario" tabindex="-1" aria-labelledby="formulario" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Agrear cuenta de prestamos</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="http://localhost:3000/prestamos-agregar" method="post">
+                            <div class="row mb-3">
+                                <label for="prestamo" class="form-label">Prestamo Solicitado</label>
+                                <div class="col">
+                                    <input type="number" min="0" class="form-control" id="prestamo" name="prestamo">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="intereses" class="form-label">Intereses en %</label>
+                                <div class="col">
+                                    <input type="number" min="0" max="100" class="form-control" id="intereses"
+                                        name="intereses">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="dueño" class="form-label">Dueño de la Cuenta</label>
+                                <div class="col">
+                                    <input type="text" class="form-control" id="dueño" name="dueño">
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="submit" class="btn btn-info">Crear</button>
+                                <button type="button" data-bs-dismiss="modal" class="btn btn-danger">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"
+        integrity="sha512-7Pi/otdlbbCR+LnW+F7PwFcSDJOuUJB3OxtEHbg4vSMvzvJjde4Po1v4BR9Gdc9aXNUNFVUY+SK51wWT8WF0Gg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</body>
+
+</html>

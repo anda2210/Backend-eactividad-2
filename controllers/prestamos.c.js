@@ -86,7 +86,7 @@ class prestamosControllers {
                 const usuarios = await UsuaiosModel.find().select(
                     '_id nombre apellido usuario correo cedula contraseña'
                 )
-                if (!prestamo.dueño || !prestamo.prestamo) {
+                if (!prestamo.dueño || !prestamo.prestamo || !prestamo.intereses) {
                     return reject("Faltan propiedades escenciales para agregar la cuenta")
                 }
                 for (let a = 0; a < prestamos.length; a++) {
@@ -98,14 +98,14 @@ class prestamosControllers {
                     if (usuarios[i].usuario === prestamo.dueño) {
                         let fecha_pago = fecha()
                         console.log(fecha_pago)
-                        let tasa_diaria = (0.10 / 360) * prestamo.prestamo
+                        let tasa_diaria = (0.10 / 360) * Number(prestamo.prestamo)
                         let tasa_mensual = tasa_diaria * 30
                         let nuevo = {
-                            balance: prestamo.prestamo,
-                            intereses: 10,
+                            balance: Number(prestamo.prestamo),
+                            intereses: Number(prestamo.intereses),
                             estado: "deuda",
                             fecha_pago: fecha_pago,
-                            monto_pago: (prestamo.prestamo + tasa_mensual).toFixed(2),
+                            monto_pago: (Number(prestamo.prestamo) + tasa_mensual).toFixed(2),
                             dueño: prestamo.dueño
                         }
                         const cuenta_nueva = await PrestamosModel.create(nuevo)
