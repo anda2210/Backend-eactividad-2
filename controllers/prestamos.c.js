@@ -1,11 +1,14 @@
-const { v4: uuidv4 } = require('uuid');
-const { prestamos, usuarios } = require('../database/database');
+const UsuaiosModel = require('../models/usuarios.m');
+const PrestamosModel = require('../models/prestamos.m');
 const { fecha, fecha_hoy } = require('../functions/fechas');
 
 class prestamosControllers {
     listar() {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
+                const prestamos = await PrestamosModel.find().select(
+                    '_id balance intereses monto_pago fecha_pago estado dueño'
+                )
                 if (prestamos.length === 0) {
                     return reject('No hay cuentas de prestamos registradas en el Banco')
                 }
@@ -32,10 +35,13 @@ class prestamosControllers {
     };
 
     fecha_pago(cuenta) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
+                const prestamos = await PrestamosModel.find().select(
+                    '_id balance intereses monto_pago fecha_pago estado dueño'
+                )
                 for (let i = 0; i < prestamos.length; i++) {
-                    if (prestamos[i].numero_cuenta === cuenta) {
+                    if (prestamos[i]._id == cuenta) {
                         if (prestamos[i].estado === "solvente") {
                             return resolve({
                                 mensaje: "La cuenta es libre de deuda",
@@ -46,7 +52,7 @@ class prestamosControllers {
                         }
                         if (fecha_hoy() <= prestamos[i].fecha_pago) {
                             return resolve({
-                                mensaje: "La cuenta posee una deuda en la siguiente fecha proxima" ,
+                                mensaje: "La cuenta posee una deuda en la siguiente fecha proxima",
                                 data: {
                                     fecha_proxima: prestamos[i].fecha_pago,
                                     numero_cuenta: prestamos[i].numero_cuenta,
@@ -72,8 +78,14 @@ class prestamosControllers {
     }
 
     agregar(prestamo) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
+                const prestamos = await PrestamosModel.find().select(
+                    '_id balance intereses monto_pago fecha_pago estado dueño'
+                )
+                const usuarios = await UsuaiosModel.find().select(
+                    '_id nombre apellido usuario correo cedula contraseña'
+                )
                 if (!prestamo.dueño || !prestamo.prestamo) {
                     return reject("Faltan propiedades escenciales para agregar la cuenta")
                 }
@@ -88,16 +100,18 @@ class prestamosControllers {
                         console.log(fecha_pago)
                         let tasa_diaria = (0.10 / 360) * prestamo.prestamo
                         let tasa_mensual = tasa_diaria * 30
-                        let cuenta_nueva = {
+                        let nuevo = {
                             balance: prestamo.prestamo,
                             intereses: 10,
                             estado: "deuda",
                             fecha_pago: fecha_pago,
                             monto_pago: (prestamo.prestamo + tasa_mensual).toFixed(2),
-                            dueño: prestamo.dueño,
-                            numero_cuenta: uuidv4()
+                            dueño: prestamo.dueño
                         }
-                        prestamos.push(cuenta_nueva);
+                        const cuenta_nueva = await PrestamosModel.create(nuevo)
+                        if (!cuenta_nueva) {
+                            return reject('Hubo un error al crear la nueva cuenta de prestamos')
+                        }
                         return resolve({
                             mensaje: "Se ha registrado con exito la cuenta de prestamos del usuario " + prestamo.dueño,
                             data: {
@@ -120,11 +134,17 @@ class prestamosControllers {
     }
 
     eliminar(cuenta) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
+                const prestamos = await PrestamosModel.find().select(
+                    '_id balance intereses monto_pago fecha_pago estado dueño'
+                )
                 for (let i = 0; i < prestamos.length; i++) {
-                    if (prestamos[i].numero_cuenta === cuenta) {
-                        prestamos.splice(i, 1);
+                    if (prestamos[i]._id == cuenta) {
+                        const cuentaEliminada = await PrestamosModel.findByIdAndDelete(cuenta)
+                        if (!cuentaEliminada) {
+                            return reject('Hubo un error al eliminar la cuenta')
+                        }
                         return resolve({
                             mensaje: "Se ha eliminado con exito la cuenta de prestamos " + cuenta
                         })
